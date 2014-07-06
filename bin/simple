@@ -3,7 +3,6 @@
 """
 Usage:
     simple [options] tail [-n <num>] [-f]
-    simple [options] card
     simple [options] goals [--archived] [--completed]
     simple (-h | --help)
     simple --version
