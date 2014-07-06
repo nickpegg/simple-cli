@@ -112,12 +112,11 @@ def goals(api, output, args):
 
     if not args['--archived']:
         data = filter(lambda g: g['archived'] is False, data)
-
-    if not args['--completed']:
+    elif not args['--completed']:
         data = filter(lambda g: not g.is_completed(), data)
     else:
         # Show completed/archived first
-        data = sorted(data, key=lambda g: g.is_completed(), reverse=True)
+        data = sorted(data, key=lambda g: g.is_completed() or g['archived'], reverse=True)
 
     output(list(data))
     return 0

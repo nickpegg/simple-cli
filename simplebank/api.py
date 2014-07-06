@@ -164,7 +164,7 @@ class Goal(dict):
         contributed = self['contributed_amount'] / 10000.0
         title_line = self['name'] + ' - ${:.2f}'.format(contributed)
 
-        if not self.is_completed():
+        if not self.is_completed() and not self['archived']:
             target = self['target_amount'] / 10000.0
             daily_contribution = self.get('next_contribution', {}).get('amount', 0.0) / 10000.0
 
