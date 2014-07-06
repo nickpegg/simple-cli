@@ -14,7 +14,6 @@ Options:
 
 Commands:
     tail            Display a number of your latest transactions
-    card            Display info on your card
     goals           Display your goals
 
 Tail Options:
