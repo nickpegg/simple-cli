@@ -197,3 +197,22 @@ class Goal(dict):
             output = title_line
 
         return output
+
+
+class Balance(dict):
+    def __str__(self):
+        # [todo] use real keys here
+        return '{}\t${:.2f}'.format(self['type'], self['amount'])
+
+
+class Card(dict):
+    def __str__(self):
+        output = ''
+
+        # [todo] I think clint has some fancy columns stuff
+        output += "Name on card:\t" + self['customer_name'] + "\n"
+        output += "Last four:\t\t" + self['indent'] + "\n"
+        output += "Expiration:\t\t" + self['expiration_date'] + "\n"
+        output += "Status:\t\t" + self['card_status'].capitalize() + "\n" 
+
+        return output

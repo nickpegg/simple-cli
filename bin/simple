@@ -2,8 +2,10 @@
 
 """
 Usage:
+    simple [options] balances
     simple [options] tail [-n <num>] [-f]
     simple [options] goals [--archived] [--completed]
+    simple [options] card
     simple (-h | --help)
     simple --version
 
@@ -13,8 +15,10 @@ Options:
     -o [format]     Use <format> to output data [default: human]
 
 Commands:
+    balances        Display your account balances
     tail            Display a number of your latest transactions
     goals           Display your goals
+    card            Display info about your Simple debit card
 
 Tail Options:
     -n <num>        Get the <num> latest transactions [default: 10]
@@ -76,7 +80,24 @@ def cli():
         return tail(api, output, args)
     elif args['goals']:
         return goals(api, output, args)
+    elif args['card']:
+        return card(api, output, args)
 
+    return 0
+
+
+def balances(api, output, args):
+    data = api.balances()
+
+    # [todo] sort by type? something like: Safe-to-Spend, in-goals, pending, total
+
+    output(data['balances'])
+
+    return 0
+
+
+def card(api, output, args):
+    output(api.card())
     return 0
 
 
