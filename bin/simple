@@ -76,7 +76,9 @@ def cli():
     # Get outputter
     output = get_outputter(args['-o'])
 
-    if args['tail']:
+    if args['balances']:
+        return balances(api, output, args)
+    elif args['tail']:
         return tail(api, output, args)
     elif args['goals']:
         return goals(api, output, args)
@@ -87,12 +89,7 @@ def cli():
 
 
 def balances(api, output, args):
-    data = api.balances()
-
-    # [todo] sort by type? something like: Safe-to-Spend, in-goals, pending, total
-
-    output(data['balances'])
-
+    output(api.balances())
     return 0
 
 

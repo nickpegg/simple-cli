@@ -113,7 +113,12 @@ class Api(object):
     def balances(self):
         url = self.base_url + "/account/balances"
 
-        return self._get(url)
+        data = self._get(url)
+
+        for k, v in data.items():
+            data[k] = v / 1000.0    # Convert to dollars
+
+        return Balances(data)
 
     def goals(self, archived=True, completed=True):
         url = self.base_url + "/goals/data"
@@ -128,7 +133,7 @@ class Api(object):
     def card(self):
         url = self.base_url + "/card"
 
-        return self._get(url)
+        return Card(self._get(url))
 
 
 # Wrapper classes to provide a human-friendly __str__
@@ -199,10 +204,21 @@ class Goal(dict):
         return output
 
 
-class Balance(dict):
+class Balances(dict):
     def __str__(self):
-        # [todo] use real keys here
-        return '{}\t${:.2f}'.format(self['type'], self['amount'])
+        output = ''
+
+        # [todo] I think clint has some fancy columns stuff
+        # [todo] use some fancy colors on the dollar amounts
+        output += "Total:\t\t${:.2f}\n".format(self['total'])
+        output += "Deposits:\t\${:.2f}\n".format(self['deposits'])
+        output += "Bills:\t\t-${:.2f}\n".format(self['bills'])
+        output += "Pending:\t\t-${:.2f}\n".format(self['pending'])
+        output += "Goals\t\t-${:.2f}\n".format(self['goals'])
+
+        output += "\nSafe to Spend:\t${:.2f}\n".format(self['save_to_spend'])
+
+        return output
 
 
 class Card(dict):
