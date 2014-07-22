@@ -50,9 +50,9 @@ import simplebank
 
 # Python 2/3 compatibility junk
 try:
-    raw_input
+    input = raw_input
 except NameError:
-    raw_input = input
+    pass
 
 
 def cli():
@@ -60,7 +60,7 @@ def cli():
 
     # Get username and password
     if not args['-u']:
-        args['-u'] = raw_input('Simple username: ')
+        args['-u'] = input('Simple username: ')
 
     args['-n'] = int(args['-n'])
 
