@@ -2,8 +2,11 @@
 
 """
 Usage:
+    simple [options] balances
     simple [options] tail [-n <num>] [-f]
     simple [options] goals [--archived] [--completed]
+    simple [options] payments
+    simple [options] card
     simple (-h | --help)
     simple --version
 
@@ -13,8 +16,11 @@ Options:
     -o [format]     Use <format> to output data [default: human]
 
 Commands:
+    balances        Display your account balances
     tail            Display a number of your latest transactions
     goals           Display your goals
+    payments        Display your upcoming payments
+    card            Display info about your Simple debit card
 
 Tail Options:
     -n <num>        Get the <num> latest transactions [default: 10]
@@ -46,9 +52,9 @@ import simplebank
 
 # Python 2/3 compatibility junk
 try:
-    raw_input
+    input = raw_input
 except NameError:
-    raw_input = input
+    pass
 
 
 def cli():
@@ -56,7 +62,7 @@ def cli():
 
     # Get username and password
     if not args['-u']:
-        args['-u'] = raw_input('Simple username: ')
+        args['-u'] = input('Simple username: ')
 
     args['-n'] = int(args['-n'])
 
@@ -72,11 +78,27 @@ def cli():
     # Get outputter
     output = get_outputter(args['-o'])
 
-    if args['tail']:
+    if args['balances']:
+        return balances(api, output, args)
+    elif args['tail']:
         return tail(api, output, args)
     elif args['goals']:
         return goals(api, output, args)
+    elif args['payments']:
+        return payments(api, output, args)
+    elif args['card']:
+        return card(api, output, args)
 
+    return 0
+
+
+def balances(api, output, args):
+    output(api.balances())
+    return 0
+
+
+def card(api, output, args):
+    output(api.card())
     return 0
 
 
@@ -119,6 +141,14 @@ def goals(api, output, args):
         data = sorted(data, key=lambda g: g.is_completed() or g['archived'], reverse=True)
 
     output(list(data))
+    return 0
+
+
+def payments(api, output, args):
+    data = api.payments()
+
+    output(data)
+
     return 0
 
 

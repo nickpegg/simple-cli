@@ -27,6 +27,7 @@ def login_required(func):
 
 class Api(object):
     def __init__(self):
+        self.headers = {'User-Agent': 'Simple CLI v0.0.2 (https://github.com/nickpegg/simple-cli)'}
         self.session = None
         self.base_url = "https://bank.simple.com"
 
@@ -42,17 +43,13 @@ class Api(object):
 
         # Get CSRF token for login
         # [todo] Find this properly with beautifulsoup or something
-        resp = self.session.get(self.base_url + '/signin')
+        resp = self.session.get(self.base_url + '/signin', headers=self.headers)
         match = re.search(r'input value="(.+?)" name="_csrf"', resp.text)
         if match:
             csrf_token = match.group(1)
         else:
             raise Exception("Couldn't get csrf token")
 
-        headers = {
-            'Referer': 'https://bank.simple.com/signin',
-            'Origin': 'https://bank.simple.com'
-        }
         auth = {
             'username': username,
             'password': password,
@@ -61,7 +58,7 @@ class Api(object):
 
         # log in
         resp = self.session.post('https://bank.simple.com/signin',
-                                 headers=headers,
+                                 headers=self.headers,
                                  data=auth)
 
         if resp.status_code not in range(200, 400) or 'form id="login"' in resp.text:
@@ -79,7 +76,7 @@ class Api(object):
 
         data = {}
 
-        response = self.session.get(url)
+        response = self.session.get(url, headers=self.headers)
 
         if response.status_code in range(500, 600):
             raise Exception("Got a status {} from {}".format(response.status_code, url))
@@ -113,7 +110,12 @@ class Api(object):
     def balances(self):
         url = self.base_url + "/account/balances"
 
-        return self._get(url)
+        data = self._get(url)
+
+        for k, v in data.items():
+            data[k] = v / 10000.0    # Convert to dollars
+
+        return Balances(data)
 
     def goals(self, archived=True, completed=True):
         url = self.base_url + "/goals/data"
@@ -122,13 +124,14 @@ class Api(object):
 
     def payments(self):
         url = self.base_url + "/payments/next_payments"
+        data = self._get(url)
 
-        return self._get(url)
+        return [Payment(x) for x in data]
 
     def card(self):
         url = self.base_url + "/card"
 
-        return self._get(url)
+        return Card(self._get(url))
 
 
 # Wrapper classes to provide a human-friendly __str__
@@ -195,5 +198,45 @@ class Goal(dict):
 
         else:
             output = title_line
+
+        return output
+
+
+class Balances(dict):
+    def __str__(self):
+        output = ''
+
+        # [todo] I think clint has some fancy columns stuff
+        # [todo] use some fancy colors on the dollar amounts
+        output += "Total:\t\t${:.2f}\n".format(self['total'])
+        output += "Deposits:\t${:.2f}\n".format(self['deposits'])
+        output += "Bills:\t\t-${:.2f}\n".format(self['bills'])
+        output += "Pending:\t-${:.2f}\n".format(self['pending'])
+        output += "Goals\t\t-${:.2f}\n".format(self['goals'])
+
+        output += "\nSafe to Spend:\t${:.2f}\n".format(self['safe_to_spend'])
+
+        return output
+
+
+class Payment(dict):
+    def __str__(self):
+        output = 'Sending ${:.2f} to {}, arriving by {}'
+        amount = self['amount'] / 100.0
+
+        return output.format(amount, 
+                             self['contact']['contact_name'], 
+                             self['arrive_by'])
+
+
+class Card(dict):
+    def __str__(self):
+        output = ''
+
+        # [todo] I think clint has some fancy columns stuff
+        output += "Name on card:\t" + self['customer_name'] + "\n"
+        output += "Last four:\t" + self['indent'] + "\n"
+        output += "Expiration:\t" + self['expiration_date'] + "\n"
+        output += "Status:\t\t" + self['card_status'].capitalize() + "\n" 
 
         return output

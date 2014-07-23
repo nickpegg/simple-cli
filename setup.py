@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='simple-cli',
-    version='0.0.1',
+    version='0.0.2',
     author='Nick Pegg',
     author_email='code@nickpegg.com',
     packages=['simplebank'],
