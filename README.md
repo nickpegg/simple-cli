@@ -9,8 +9,11 @@ A CLI tool for interacting with your Simple bank account.
 ## Usage
 ```
 Usage:
+    simple [options] balances
     simple [options] tail [-n <num>] [-f]
     simple [options] goals [--archived] [--completed]
+    simple [options] payments
+    simple [options] card
     simple (-h | --help)
     simple --version
 
@@ -20,8 +23,11 @@ Options:
     -o [format]     Use <format> to output data [default: human]
 
 Commands:
+    balances        Display your account balances
     tail            Display a number of your latest transactions
     goals           Display your goals
+    payments        Display your upcoming payments
+    card            Display info about your Simple debit card
 
 Tail Options:
     -n <num>        Get the <num> latest transactions [default: 10]
