@@ -27,7 +27,7 @@ def login_required(func):
 
 class Api(object):
     def __init__(self):
-        self.headers = {'User-Agent': 'Simple CLI (https://github.com/nickpegg/simple-cli)'}
+        self.headers = {'User-Agent': 'Simple CLI v0.0.2 (https://github.com/nickpegg/simple-cli)'}
         self.session = None
         self.base_url = "https://bank.simple.com"
 
