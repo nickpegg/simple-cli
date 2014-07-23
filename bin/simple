@@ -73,7 +73,9 @@ def cli():
 
     # Log in
     api = simplebank.Api()
-    api.login(args['-u'], password)
+    if not api.login(args['-u'], password):
+        print("Unable to log in with the username and password you supplied")
+        exit(1)
 
     # Get outputter
     output = get_outputter(args['-o'])
