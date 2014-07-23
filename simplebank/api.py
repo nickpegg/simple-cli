@@ -208,12 +208,12 @@ class Balances(dict):
         # [todo] I think clint has some fancy columns stuff
         # [todo] use some fancy colors on the dollar amounts
         output += "Total:\t\t${:.2f}\n".format(self['total'])
-        output += "Deposits:\t\${:.2f}\n".format(self['deposits'])
+        output += "Deposits:\t${:.2f}\n".format(self['deposits'])
         output += "Bills:\t\t-${:.2f}\n".format(self['bills'])
-        output += "Pending:\t\t-${:.2f}\n".format(self['pending'])
+        output += "Pending:\t-${:.2f}\n".format(self['pending'])
         output += "Goals\t\t-${:.2f}\n".format(self['goals'])
 
-        output += "\nSafe to Spend:\t${:.2f}\n".format(self['save_to_spend'])
+        output += "\nSafe to Spend:\t${:.2f}\n".format(self['safe_to_spend'])
 
         return output
 
