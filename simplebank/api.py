@@ -113,7 +113,7 @@ class Api(object):
         data = self._get(url)
 
         for k, v in data.items():
-            data[k] = v / 1000.0    # Convert to dollars
+            data[k] = v / 10000.0    # Convert to dollars
 
         return Balances(data)
 
