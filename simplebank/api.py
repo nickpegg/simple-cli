@@ -224,8 +224,8 @@ class Card(dict):
 
         # [todo] I think clint has some fancy columns stuff
         output += "Name on card:\t" + self['customer_name'] + "\n"
-        output += "Last four:\t\t" + self['indent'] + "\n"
-        output += "Expiration:\t\t" + self['expiration_date'] + "\n"
+        output += "Last four:\t" + self['indent'] + "\n"
+        output += "Expiration:\t" + self['expiration_date'] + "\n"
         output += "Status:\t\t" + self['card_status'].capitalize() + "\n" 
 
         return output
