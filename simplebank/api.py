@@ -124,8 +124,9 @@ class Api(object):
 
     def payments(self):
         url = self.base_url + "/payments/next_payments"
+        data = self._get(url)
 
-        return self._get(url)
+        return [Payment(x) for x in data]
 
     def card(self):
         url = self.base_url + "/card"
@@ -216,6 +217,16 @@ class Balances(dict):
         output += "\nSafe to Spend:\t${:.2f}\n".format(self['safe_to_spend'])
 
         return output
+
+
+class Payment(dict):
+    def __str__(self):
+        output = 'Sending ${:.2f} to {}, arriving by {}'
+        amount = self['amount'] / 100.0
+
+        return output.format(amount, 
+                             self['contact']['contact_name'], 
+                             self['arrive_by'])
 
 
 class Card(dict):

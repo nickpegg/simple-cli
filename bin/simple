@@ -5,6 +5,7 @@ Usage:
     simple [options] balances
     simple [options] tail [-n <num>] [-f]
     simple [options] goals [--archived] [--completed]
+    simple [options] payments
     simple [options] card
     simple (-h | --help)
     simple --version
@@ -18,6 +19,7 @@ Commands:
     balances        Display your account balances
     tail            Display a number of your latest transactions
     goals           Display your goals
+    payments        Display your upcoming payments
     card            Display info about your Simple debit card
 
 Tail Options:
@@ -82,6 +84,8 @@ def cli():
         return tail(api, output, args)
     elif args['goals']:
         return goals(api, output, args)
+    elif args['payments']:
+        return payments(api, output, args)
     elif args['card']:
         return card(api, output, args)
 
@@ -137,6 +141,14 @@ def goals(api, output, args):
         data = sorted(data, key=lambda g: g.is_completed() or g['archived'], reverse=True)
 
     output(list(data))
+    return 0
+
+
+def payments(api, output, args):
+    data = api.payments()
+
+    output(data)
+
     return 0
 
 
