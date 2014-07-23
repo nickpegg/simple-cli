@@ -27,6 +27,7 @@ def login_required(func):
 
 class Api(object):
     def __init__(self):
+        self.headers = {'User-Agent': 'Simple CLI (https://github.com/nickpegg/simple-cli)'}
         self.session = None
         self.base_url = "https://bank.simple.com"
 
@@ -42,17 +43,13 @@ class Api(object):
 
         # Get CSRF token for login
         # [todo] Find this properly with beautifulsoup or something
-        resp = self.session.get(self.base_url + '/signin')
+        resp = self.session.get(self.base_url + '/signin', headers=self.headers)
         match = re.search(r'input value="(.+?)" name="_csrf"', resp.text)
         if match:
             csrf_token = match.group(1)
         else:
             raise Exception("Couldn't get csrf token")
 
-        headers = {
-            'Referer': 'https://bank.simple.com/signin',
-            'Origin': 'https://bank.simple.com'
-        }
         auth = {
             'username': username,
             'password': password,
@@ -61,7 +58,7 @@ class Api(object):
 
         # log in
         resp = self.session.post('https://bank.simple.com/signin',
-                                 headers=headers,
+                                 headers=self.headers,
                                  data=auth)
 
         if resp.status_code not in range(200, 400) or 'form id="login"' in resp.text:
@@ -79,7 +76,7 @@ class Api(object):
 
         data = {}
 
-        response = self.session.get(url)
+        response = self.session.get(url, headers=self.headers)
 
         if response.status_code in range(500, 600):
             raise Exception("Got a status {} from {}".format(response.status_code, url))
