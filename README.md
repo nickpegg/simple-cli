@@ -11,12 +11,20 @@ A CLI tool for interacting with your Simple bank account.
 ## Usage
 
 ### Examples
-* `simple -u nickpegg tail -n 20    # Get last 20 transactions`
-* `simple -u nickpegg tail -n5 -f   # Get last 5 transactions and display any new ones as they appear`
-* `simple -u nickpegg goals         # Check the status of your goals`
+```
+# Get last 20 transactions
+simple -u nickpegg tail -n 20
+ 
+# Get last 5 transactions and display any new ones as they appear in your account
+simple -u nickpegg tail -n5 -f
 
-If you use a command-line password manager, such as password-store, you can use it to pass the password into simple-cli via standard input, like this:
-`pass show simple | simple -u nickpegg -p goals`
+#Check the status of your goals
+simple -u nickpegg goals
+
+# If you use a command-line password manager, such as password-store, 
+# you can use it to pass the password into simple-cli via standard input, like this:
+pass show simple | simple -u nickpegg -p goals
+```
 
 ### Full Usage
 ```
