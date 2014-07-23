@@ -9,6 +9,16 @@ A CLI tool for interacting with your Simple bank account.
 `sudo pip install https://github.com/nickpegg/simple-cli/archive/master.zip`
 
 ## Usage
+
+### Examples
+* `simple -u nickpegg tail -n 20    # Get last 20 transactions`
+* `simple -u nickpegg tail -n5 -f   # Get last 5 transactions and display any new ones as they appear`
+* `simple -u nickpegg goals         # Check the status of your goals`
+
+If you use a command-line password manager, such as password-store, you can use it to pass the password into simple-cli via standard input, like this:
+`pass show simple | simple -u nickpegg -p goals`
+
+### Full Usage
 ```
 Usage:
     simple [options] balances
