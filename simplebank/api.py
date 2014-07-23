@@ -62,9 +62,7 @@ class Api(object):
                                  data=auth)
 
         if resp.status_code not in range(200, 400) or 'form id="login"' in resp.text:
-            # log in failed, clobber session
-            print('failed to log in')
-            self.session = None
+            self.session = None     # log in failed, clobber session
 
         return self.session is not None
 
