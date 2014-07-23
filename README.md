@@ -2,6 +2,8 @@
 
 A CLI tool for interacting with your Simple bank account.
 
+*Note:* This is still under early development. The way argument parsing is handled and the available commands are subject to change before the 0.1.0 release (though it shoudln't change too much!).
+
 ## Installation
 
 `sudo pip install https://github.com/nickpegg/simple-cli/archive/master.zip`
