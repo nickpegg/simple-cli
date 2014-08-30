@@ -16,5 +16,6 @@ setup(
         'clint>=0.3.7',
         'requests>=2.3.0',
         'PyYAML>=3.11',
+        'click==3.2',
     ],
 )
