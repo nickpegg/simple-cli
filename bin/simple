@@ -1,47 +1,8 @@
 #!/usr/bin/env python3
 
-"""
-Usage:
-    simple [options] balances
-    simple [options] tail [-n <num>] [-f]
-    simple [options] goals [--archived] [--completed]
-    simple [options] payments
-    simple [options] card
-    simple (-h | --help)
-    simple --version
-
-Options:
-    -u <username>   Specify a Simple username to use
-    -p              Supply a password via stdin
-    -o [format]     Use <format> to output data [default: human]
-
-Commands:
-    balances        Display your account balances
-    tail            Display a number of your latest transactions
-    goals           Display your goals
-    payments        Display your upcoming payments
-    card            Display info about your Simple debit card
-
-Tail Options:
-    -n <num>        Get the <num> latest transactions [default: 10]
-    -f              Display transactions as they're made, similar to the `tail -f` command
-
-Goals Options:
-    --archived      Show archived goals
-    --completed     Show completed goals
-
-Formats:
-    human   Human-friendly output of the most important parts of the data
-    raw     Raw output of the data
-    pprint  Pretty-printed output of the data
-    json    JSON dump of the data
-
-"""
-
 import json
 import sys
 import time
-from getpass import getpass
 from pprint import pprint
 
 import click
@@ -59,9 +20,18 @@ except NameError:
 
 
 @click.group()
-@click.option('-u', 'username', default='', help='Specify a username', required=False)
-@click.option('-p', 'password', help='Read password from stdin', is_flag=True)
-@click.option('-o', 'output_format', default='human', help='Output format', required=False)
+@click.option('-u', 'username',
+              help='Specify a username',
+              default='',
+              required=False)
+@click.option('-p', 'password',
+              help='Read password from stdin',
+              is_flag=True)
+@click.option('-o', 'output_format',
+              help='Output format',
+              default='human',
+              type=click.Choice(['human', 'raw', 'pprint', 'json']),
+              required=False)
 @click.version_option(version=simplebank.__version__)
 @click.help_option('-h')
 @click.pass_context
@@ -89,29 +59,20 @@ def cli(ctx, username, password, output_format):
     ctx.obj['output'] = get_outputter(output_format)
     ctx.obj['api'] = api
 
-    # if args['balances']:
-    #     return balances(api, output, args)
-    # elif args['tail']:
-    #     return tail(api, output, args)
-    # elif args['goals']:
-    #     return goals(api, output, args)
-    # elif args['payments']:
-    #     return payments(api, output, args)
-    # elif args['card']:
-    #     return card(api, output, args)
 
-
-@cli.command()
+@cli.command(help='Show your bank balances')
+@click.help_option('-h')
 @click.pass_obj
 def balances(ctx):
-    output = obj['output']
-    api = obj['api']
+    output = ctx['output']
+    api = ctx['api']
 
     output(api.balances())
     return 0
 
 
-@cli.command()
+@cli.command(help='Show information about your card')
+@click.help_option('-h')
 @click.pass_obj
 def card(ctx):
     output = ctx['output']
@@ -121,7 +82,8 @@ def card(ctx):
     return 0
 
 
-@cli.command()
+@cli.command(help='Show your upcoming payments')
+@click.help_option('-h')
 @click.pass_obj
 def payments(ctx):
     output = ctx['output']
@@ -132,9 +94,14 @@ def payments(ctx):
     return 0
 
 
-@cli.command()
-@click.option('-n', 'num', default=10, type=int, help='Fetch these many transactions')
-@click.option('-f', 'follow', is_flag=True, help="Display transactions as they're made")
+@cli.command(help='Show your latest transactions')
+@click.option('-n', 'num',
+              help='Fetch these many transactions',
+              default=10,
+              type=int)
+@click.option('-f', 'follow',
+              help="Display transactions as they're made",
+              is_flag=True)
 @click.help_option('-h')
 @click.pass_obj
 def tail(ctx, num, follow):
@@ -167,9 +134,9 @@ def tail(ctx, num, follow):
     return 0
 
 
-@cli.command()
-@click.option('--archived', is_flag=True, help="Show archived goals")
-@click.option('--completed', is_flag=True, help="Shop completed goals")
+@cli.command(help='Show your goals')
+@click.option('--archived', help="Show archived goals", is_flag=True)
+@click.option('--completed', help="Shop completed goals", is_flag=True)
 @click.help_option('-h')
 @click.pass_obj
 def goals(ctx, archived, completed):
