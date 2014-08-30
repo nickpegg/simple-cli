@@ -44,8 +44,9 @@ import time
 from getpass import getpass
 from pprint import pprint
 
-from clint.textui import puts
-from docopt import docopt
+import click
+#from clint.textui import puts
+#from docopt import docopt
 
 import simplebank
 
@@ -57,63 +58,98 @@ except NameError:
     pass
 
 
-def cli():
-    args = docopt(__doc__, version='simple-cli version 0.0.1', help=True)
+@click.group()
+@click.option('-u', 'username', default='', help='Specify a username', required=False)
+@click.option('-p', 'password', help='Read password from stdin', is_flag=True)
+@click.option('-o', 'output_format', default='human', help='Output format', required=False)
+@click.version_option(version=simplebank.__version__)
+@click.help_option('-h')
+@click.pass_context
+def cli(ctx, username, password, output_format):
+    #args = docopt(__doc__, version='simple-cli version 0.0.1', help=True)
 
     # Get username and password
-    if not args['-u']:
-        args['-u'] = input('Simple username: ')
+    if not username:
+        username = click.prompt('Simple username')
 
-    args['-n'] = int(args['-n'])
+#    args['-n'] = int(args['-n'])
 
-    if args['-p']:
+    if password:
         password = sys.stdin.read().strip()
     else:
-        password = getpass('Simple password: ')
+        password = click.prompt('Simple password', hide_input=True)
 
-    # Log in
+    # # Log in
     api = simplebank.Api()
-    if not api.login(args['-u'], password):
+    if not api.login(username, password):
         print("Unable to log in with the username and password you supplied")
         exit(1)
 
     # Get outputter
-    output = get_outputter(args['-o'])
+    ctx.obj['output'] = get_outputter(output_format)
+    ctx.obj['api'] = api
 
-    if args['balances']:
-        return balances(api, output, args)
-    elif args['tail']:
-        return tail(api, output, args)
-    elif args['goals']:
-        return goals(api, output, args)
-    elif args['payments']:
-        return payments(api, output, args)
-    elif args['card']:
-        return card(api, output, args)
-
-    return 0
+    # if args['balances']:
+    #     return balances(api, output, args)
+    # elif args['tail']:
+    #     return tail(api, output, args)
+    # elif args['goals']:
+    #     return goals(api, output, args)
+    # elif args['payments']:
+    #     return payments(api, output, args)
+    # elif args['card']:
+    #     return card(api, output, args)
 
 
-def balances(api, output, args):
+@cli.command()
+@click.pass_obj
+def balances(ctx):
+    output = obj['output']
+    api = obj['api']
+
     output(api.balances())
     return 0
 
 
-def card(api, output, args):
+@cli.command()
+@click.pass_obj
+def card(ctx):
+    output = ctx['output']
+    api = ctx['api']
+
     output(api.card())
     return 0
 
 
-def tail(api, output, args):
+@cli.command()
+@click.pass_obj
+def payments(ctx):
+    output = ctx['output']
+    api = ctx['api']
+
+    output(api.payments())
+
+    return 0
+
+
+@cli.command()
+@click.option('-n', 'num', default=10, type=int, help='Fetch these many transactions')
+@click.option('-f', 'follow', is_flag=True, help="Display transactions as they're made")
+@click.help_option('-h')
+@click.pass_obj
+def tail(ctx, num, follow):
+    output = ctx['output']
+    api = ctx['api']
+
     # Get transactions
     data = api.transactions()
-    transactions = data['transactions'][:args['-n']]
+    transactions = data['transactions'][:num]
     transactions = sorted(transactions, key=lambda x: x['times']['when_received'])
     new_timestamp = data['timestamp']
 
     output(transactions)
 
-    if args['-f']:
+    if follow:
         try:
             # [todo] Find a way that doesn't involve hitting new_transactions
             #   /api/notifications looks interesting, maybe that's what we need?
@@ -131,12 +167,20 @@ def tail(api, output, args):
     return 0
 
 
-def goals(api, output, args):
+@cli.command()
+@click.option('--archived', is_flag=True, help="Show archived goals")
+@click.option('--completed', is_flag=True, help="Shop completed goals")
+@click.help_option('-h')
+@click.pass_obj
+def goals(ctx, archived, completed):
+    output = ctx['output']
+    api = ctx['api']
+
     data = api.goals()
 
-    if not args['--archived']:
+    if not archived:
         data = filter(lambda g: g['archived'] is False, data)
-    elif not args['--completed']:
+    elif not completed:
         data = filter(lambda g: not g.is_completed(), data)
     else:
         # Show completed/archived first
@@ -146,28 +190,20 @@ def goals(api, output, args):
     return 0
 
 
-def payments(api, output, args):
-    data = api.payments()
-
-    output(data)
-
-    return 0
-
-
 def get_outputter(method):
     if method == 'json':
-        return lambda x: puts(json.dumps(x))
+        return lambda x: click.echo(json.dumps(x))
     elif method == 'pprint':
         return pprint
     elif method == 'raw':
-        return puts
+        return click.echo
     elif method == 'human':
         def human_print(data):
             if isinstance(data, list):
                 for thing in data:
-                    puts(str(thing))
+                    click.echo(str(thing))
             else:
-                puts(str(data))
+                click.echo(str(data))
 
         return human_print
     else:
@@ -175,4 +211,4 @@ def get_outputter(method):
 
 
 if __name__ == '__main__':
-    exit(cli())
+    exit(cli(obj={}))
