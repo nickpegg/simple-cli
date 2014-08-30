@@ -134,7 +134,7 @@ def goals(ctx, archived, completed):
 
     if not archived:
         data = filter(lambda g: not g['archived'], data)
-    elif not completed:
+    if not completed:
         data = filter(lambda g: not g.is_completed(), data)
 
     # Show completed/archived first
