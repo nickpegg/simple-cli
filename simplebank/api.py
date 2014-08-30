@@ -7,6 +7,7 @@ import json
 import re
 import time
 
+import click
 import requests
 import yaml
 from clint.textui.cols import console_width
@@ -139,9 +140,13 @@ class Transaction(dict):
         tipped = self['amounts'].get('tip', 0.0) / 10000.0
 
         if self['bookkeeping_type'] == 'debit':
-            humanized = 'Spent ${:.2f} at '.format(amount)
+            humanized = 'Spent '
+            humanized += click.style('${:.2f}'.format(amount), fg='red')
+            humanized += ' at '
         else:
-            humanized = 'Got ${:.2f} from '.format(amount)
+            humanized = 'Got '
+            humanized += click.style('${:.2f}'.format(amount), fg='green')
+            humanized += ' from '
 
         humanized += self['description']
 
@@ -205,14 +210,19 @@ class Balances(dict):
         output = ''
 
         # [todo] I think clint has some fancy columns stuff
-        # [todo] use some fancy colors on the dollar amounts
         output += "Total:\t\t${:.2f}\n".format(self['total'])
         output += "Deposits:\t${:.2f}\n".format(self['deposits'])
         output += "Bills:\t\t-${:.2f}\n".format(self['bills'])
         output += "Pending:\t-${:.2f}\n".format(self['pending'])
         output += "Goals\t\t-${:.2f}\n".format(self['goals'])
 
-        output += "\nSafe to Spend:\t${:.2f}\n".format(self['safe_to_spend'])
+
+        output += "\nSafe-to-Spend:\t"
+        if self['safe_to_spend'] <= 0.0:
+            color = 'red'
+        else:
+            color = 'green'
+        output += click.style("${:.2f}\n".format(self['safe_to_spend']), fg=color, bold=True)
 
         return output
 
@@ -222,8 +232,8 @@ class Payment(dict):
         output = 'Sending ${:.2f} to {}, arriving by {}'
         amount = self['amount'] / 100.0
 
-        return output.format(amount, 
-                             self['contact']['contact_name'], 
+        return output.format(amount,
+                             self['contact']['contact_name'],
                              self['arrive_by'])
 
 
@@ -231,10 +241,14 @@ class Card(dict):
     def __str__(self):
         output = ''
 
+        status = self['card_status'].capitalize()
+        if status == 'Suspended':
+            status = click.style(status, fg='red', bold=True)
+
         # [todo] I think clint has some fancy columns stuff
         output += "Name on card:\t" + self['customer_name'] + "\n"
         output += "Last four:\t" + self['indent'] + "\n"
         output += "Expiration:\t" + self['expiration_date'] + "\n"
-        output += "Status:\t\t" + self['card_status'].capitalize() + "\n" 
+        output += "Status:\t\t" + status + "\n"
 
         return output
