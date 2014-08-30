@@ -9,7 +9,6 @@ import time
 
 import click
 import requests
-import yaml
 from clint.textui.cols import console_width
 
 
