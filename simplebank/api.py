@@ -30,6 +30,7 @@ class Api(object):
         self.headers = {'User-Agent': 'Simple CLI v0.0.2 (https://github.com/nickpegg/simple-cli)'}
         self.session = None
         self.base_url = "https://bank.simple.com"
+        self.api_base_url = self.base_url + '/api'
 
     def login(self, username, password):
         """
@@ -95,7 +96,7 @@ class Api(object):
         where <start> is the number of seconds since the epoch
         """
 
-        url = self.base_url + "/transactions/new_transactions?timestamp={}"
+        url = self.api_base_url + "/transactions/new_transactions?timestamp={}"
         url = url.format(start)
 
         # Get the transactions and wrap each one as a Transaction so that
@@ -106,7 +107,7 @@ class Api(object):
         return data
 
     def balances(self):
-        url = self.base_url + "/account/balances"
+        url = self.api_base_url + "/account/balances"
 
         data = self._get(url)
 
@@ -116,18 +117,18 @@ class Api(object):
         return Balances(data)
 
     def goals(self, archived=True, completed=True):
-        url = self.base_url + "/goals/data"
+        url = self.api_base_url + "/goals/data"
 
         return [Goal(x) for x in self._get(url)]
 
     def payments(self):
-        url = self.base_url + "/payments/next_payments"
+        url = self.api_base_url + "/payments/next_payments"
         data = self._get(url)
 
         return [Payment(x) for x in data]
 
     def card(self):
-        url = self.base_url + "/card"
+        url = self.api_base_url + "/card"
 
         return Card(self._get(url))
 
